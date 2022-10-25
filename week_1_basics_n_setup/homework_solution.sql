@@ -45,12 +45,14 @@ COPY trips(VendorID,tpep_pickup_datetime,tpep_dropoff_datetime,passenger_count,t
 -- Q3. How many taxi trips were there on January 15? Consider only trips that started on January 15
 SELECT COUNT(1) FROM trips
     WHERE tpep_pickup_datetime::date = '2021-01-15';
+-- 53024
 
 -- Q4. Find the largest tip for each day. On which day it was the largest tip in January? Use pick up time
 SELECT MAX(tip_amount), tpep_pickup_datetime::date FROM trips
     GROUP BY tpep_pickup_datetime::date
     ORDER BY MAX(tip_amount) DESC
     LIMIT 1;
+-- 1140.44 | 2021-01-20
 
 -- Q5. What was the most popular destination for passengers picked up in central park on January 14? Use the pick up time. Use zone name or unknown
 SELECT COALESCE(zdo.Zone, 'Unknown'), count(1) FROM trips t
@@ -61,6 +63,7 @@ SELECT COALESCE(zdo.Zone, 'Unknown'), count(1) FROM trips t
     GROUP BY zdo.Zone
     ORDER BY count(1) DESC
     LIMIT 1;
+-- Upper East Side South | 97
 
 -- Q6. What's the pickup-dropoff pair with the largest average price for a ride? Use total_amount. Enter two zone names separated by a slash
 SELECT CONCAT(COALESCE(zpu.Zone, 'Unknown'), '/', COALESCE(zdo.Zone, 'Unknown')), avg(total_amount) FROM trips t
@@ -69,3 +72,4 @@ SELECT CONCAT(COALESCE(zpu.Zone, 'Unknown'), '/', COALESCE(zdo.Zone, 'Unknown'))
     GROUP BY CONCAT(COALESCE(zpu.Zone, 'Unknown'), '/', COALESCE(zdo.Zone, 'Unknown'))
     ORDER BY avg(total_amount) DESC
     LIMIT 1;
+-- Alphabet City/NA | 2292.4
