@@ -10,10 +10,13 @@ Install Google Cloud SDK. What's the version you have?
 
 To get the version, run `gcloud --version`
 
+Google Cloud SDK 407.0.0
+
 ## Google Cloud account 
 
 Create an account in Google Cloud and create a project.
 
+Check 
 
 ## Question 2. Terraform 
 
@@ -29,6 +32,7 @@ Apply the plan and copy the output (after running `apply`) to the form.
 
 It should be the entire output - from the moment you typed `terraform init` to the very end.
 
+Check
 ## Prepare Postgres 
 
 Run Postgres and load data as shown in the videos
@@ -53,6 +57,12 @@ How many taxi trips were there on January 15?
 
 Consider only trips that started on January 15.
 
+```
+select count(*) from yellow_taxi_data where yellow_taxi_data.tpep_pickup_datetime >= '2021-01-15' and yellow_taxi_data.tpep_pickup_datetime < '2021-01-16'
+```
+```
+trips = 53024
+```
 
 ## Question 4. Largest tip for each day
 
@@ -63,6 +73,16 @@ Use the pick up time for your calculations.
 
 (note: it's not a typo, it's "tip", not "trip")
 
+`````
+select tpep_pickup_datetime as starting_time 
+from yellow_taxi_data 
+group by starting_time 
+order by max(tip_amount) desc
+limit 1;
+````
+````
+day = "2021-01-20 11:22:05"
+````
 
 ## Question 5. Most popular destination
 
@@ -73,6 +93,28 @@ Use the pick up time for your calculations.
 
 Enter the zone name (not id). If the zone name is unknown (missing), write "Unknown" 
 
+`````
+
+select coalesce(dozones."Zone", 'Unknown') as zone,
+count(*) as cant_trips
+from yellow_taxi_data as taxi
+
+inner join zones as puzones
+on taxi."PULocationID" = puzones."LocationID"
+
+left join zones as dozones
+on taxi."DOLocationID" = puzones."LocationID"
+where puzones."Zone" ilike '%central park'
+and tpep_pickup_datetime::date = '2021-01-14'
+group by 1
+order by cant_trips desc
+limit 1;
+
+````
+````
+unknown | 1087 trips
+````
+
 
 ## Question 6. Most expensive locations
 
@@ -81,13 +123,34 @@ average price for a ride (calculated based on `total_amount`)?
 
 Enter two zone names separated by a slash
 
+"Port Richmond/Williamsbridge/Olinville"
+
 For example:
 
 "Jamaica Bay / Clinton East"
 
+
 If any of the zone names are unknown (missing), write "Unknown". For example, "Unknown / Clinton East". 
 
+`````
+select concat(coalesce(puzones."Zone", 'Unknown'), '/', coalesce(dozones."Zone", 'Unknown'))
+as pickup_dropoff,
+avg(total_amount) as avg_price_ride
+from yellow_taxi_data as taxi
 
+left join zones as puzones
+on taxi."PULocationID" = puzones."LocationID"
+
+left join zones as dozones
+on taxi."DOLocationID" = dozones."LocationID"
+
+group by pickup_dropoff
+order by avg_price_ride desc
+limit 1;
+`````
+`````
+"Alphabet City/Unknown" 2292.4
+````
 ## Submitting the solutions
 
 * Form for submitting: https://forms.gle/yGQrkgRdVbiFs8Vd7
