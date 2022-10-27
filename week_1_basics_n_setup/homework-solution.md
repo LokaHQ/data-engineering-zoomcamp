@@ -247,16 +247,17 @@ Result: tip was 1140.44, on Jan. 20.
 ## Question 5
 
 ```sql
-select "DOLocationID", count(*) 
+select "DOLocationID", "PULocationID", count(*) 
 from yellow_taxi_trips 
 where 
   tpep_pickup_datetime between date('2021-01-14') and date('2021-01-15') 
-group by "DOLocationID" 
+  and "PULocationID"=43
+group by "DOLocationID", "PULocationID" 
 order by count(*) desc 
 limit 1;
 ```
 
-Result: Location with id 236 (Name WIP) had 3004 drop-offs.
+Result: Location Upper East Side South (ID 237) had 97 drop-offs to Central Park.
 
 ## Question 6
 
@@ -268,4 +269,4 @@ order by avg(total_amount) desc
 limit 1;
 ```
 
-Result: Locations with ID 4/256 cost 2292.4 in average.
+Result: Locations Alphabet City / Williamsburg (South Side) (IDs 4/256) cost 2292.4 in average.
