@@ -46,4 +46,6 @@ resource "google_bigquery_dataset" "dataset" {
   dataset_id = var.BQ_DATASET
   project    = var.project
   location   = var.region
+  default_table_expiration_ms = 5184000000
+  default_partition_expiration_ms = 5184000000
 }
