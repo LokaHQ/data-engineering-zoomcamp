@@ -221,6 +221,51 @@ google_bigquery_dataset.dataset: Creation complete after 6s [id=projects/data-36
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 ```
 ## Question 3
+
+```sql
+select count(*) 
+from yellow_taxi_trips 
+where 
+  tpep_pickup_datetime between date('2021-01-15') and date('2021-01-16');
+```
+
+Result: 53025
+
 ## Question 4
+
+```sql
+select tip_amount, tpep_pickup_datetime 
+from yellow_taxi_trips 
+where 
+  tpep_pickup_datetime between date('2021-01-01') and date('2021-01-31')
+order by tip_amount desc 
+limit 1;
+```
+
+Result: tip was 1140.44, on Jan. 20.
+
 ## Question 5
+
+```sql
+select "DOLocationID", count(*) 
+from yellow_taxi_trips 
+where 
+  tpep_pickup_datetime between date('2021-01-14') and date('2021-01-15') 
+group by "DOLocationID" 
+order by count(*) desc 
+limit 1;
+```
+
+Result: Location with id 236 (Name WIP) had 3004 drop-offs.
+
 ## Question 6
+
+```sql
+select "PULocationID","DOLocationID", avg(total_amount) 
+from yellow_taxi_trips 
+group by "PULocationID", "DOLocationID" 
+order by avg(total_amount) desc 
+limit 1;
+```
+
+Result: Locations with ID 4/256 cost 2292.4 in average.
