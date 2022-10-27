@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:13
+    env_file:
+      - .env
+    volumes:
+      - postgres_data_bootcamp:/var/lib/postgresql/data
+    ports:
+      - "5442:5432"
+
+volumes:
+  postgres_data_bootcamp:
+    driver: local
+
+
+
