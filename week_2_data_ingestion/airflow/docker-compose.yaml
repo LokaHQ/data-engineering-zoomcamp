@@ -69,7 +69,7 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags:z
     - ./logs:/opt/airflow/logs:z
     - ./plugins:/opt/airflow/plugins:z
-    - ~/.google/credentials/:/.google/credentials:ro
+    - ~/.google/credentials/:/.google/credentials:z
 
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
