@@ -16,6 +16,8 @@ BUCKET = os.environ.get("GCP_GCS_BUCKET")
 
 dataset_file = "yellow_tripdata_2021-01.csv"
 dataset_url = f"https://s3.amazonaws.com/nyc-tlc/trip+data/{dataset_file}"
+dataset_parquet_file = "yellow_tripdata_2021-01.parquet"
+dataset_parquet_url = f"https://d37ci6vzurychx.cloudfront.net/trip-data/{dataset_parquet_file}"
 path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
 parquet_file = dataset_file.replace('.csv', '.parquet')
 BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'trips_data_all')
@@ -70,16 +72,17 @@ with DAG(
 
     download_dataset_task = BashOperator(
         task_id="download_dataset_task",
-        bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
+        bash_command=f"curl -sSL {dataset_parquet_url} > {path_to_local_home}/{dataset_parquet_file}"
     )
-
-    format_to_parquet_task = PythonOperator(
-        task_id="format_to_parquet_task",
-        python_callable=format_to_parquet,
-        op_kwargs={
-            "src_file": f"{path_to_local_home}/{dataset_file}",
-        },
-    )
+    
+    # Bypass because the source file is already a .parquet file
+    # format_to_parquet_task = PythonOperator(
+    #     task_id="format_to_parquet_task",
+    #     python_callable=format_to_parquet,
+    #     op_kwargs={
+    #         "src_file": f"{path_to_local_home}/{dataset_file}",
+    #     },
+    # )
 
     # TODO: Homework - research and try XCOM to communicate output values between 2 tasks/operators
     local_to_gcs_task = PythonOperator(
@@ -87,8 +90,8 @@ with DAG(
         python_callable=upload_to_gcs,
         op_kwargs={
             "bucket": BUCKET,
-            "object_name": f"raw/{parquet_file}",
-            "local_file": f"{path_to_local_home}/{parquet_file}",
+            "object_name": f"raw/{dataset_parquet_file}",
+            "local_file": f"{path_to_local_home}/{dataset_parquet_file}",
         },
     )
 
@@ -102,9 +105,9 @@ with DAG(
             },
             "externalDataConfiguration": {
                 "sourceFormat": "PARQUET",
-                "sourceUris": [f"gs://{BUCKET}/raw/{parquet_file}"],
+                "sourceUris": [f"gs://{BUCKET}/raw/{dataset_parquet_file}"],
             },
         },
     )
 
-    download_dataset_task >> format_to_parquet_task >> local_to_gcs_task >> bigquery_external_table_task
+    download_dataset_task >> local_to_gcs_task >> bigquery_external_table_task
