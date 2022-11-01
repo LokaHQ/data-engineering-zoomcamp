@@ -1,5 +1,3 @@
-import os
-
 from time import time
 
 import pandas as pd
@@ -16,11 +14,13 @@ def ingest_callable(user, password, host, port, db, table_name, csv_file, execut
 
     t_start = time()
     df_iter = pd.read_csv(csv_file, iterator=True, chunksize=100000)
-
     df = next(df_iter)
 
-    df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-    df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
+    try:
+        df.pickup_datetime = pd.to_datetime(df.pickup_datetime)
+        df.dropOff_datetime = pd.to_datetime(df.dropOff_datetime)
+    except AttributeError:
+        pass
 
     df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')
 
@@ -38,8 +38,11 @@ def ingest_callable(user, password, host, port, db, table_name, csv_file, execut
             print("completed")
             break
 
-        df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-        df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
+        try:
+            df.pickup_datetime = pd.to_datetime(df.pickup_datetime)
+            df.dropOff_datetime = pd.to_datetime(df.dropOff_datetime)
+        except AttributeError:
+            pass
 
         df.to_sql(name=table_name, con=engine, if_exists='append')
 
