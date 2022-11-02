@@ -32,6 +32,8 @@ we created in the videos.
 
 What should be the start date for this dag?
 
+`2019-01-01`
+
 * 2019-01-01
 * 2020-01-01
 * 2021-01-01
@@ -41,6 +43,8 @@ What should be the start date for this dag?
 ## Question 2: Frequency for the Yellow taxi data (1 point)
 
 How often do we need to run this DAG?
+
+`monthly` - because the datasets are saved on a monthly-basis.
 
 * Daily
 * Monthly
@@ -94,6 +98,8 @@ Use the same frequency and the start date as for the yellow taxi dataset
 
 Question: how many DAG runs are green for data in 2019 after finishing everything? 
 
+`12` in 2019, but `1` was run in 2020.
+
 Note: when processing the data for 2020-01 you probably will get an error. It's up 
 to you to decide what to do with it - for Week 3 homework we won't need 2020 data.
 
@@ -110,6 +116,8 @@ Create the final DAG - for Zones:
 (Or two steps for local ingestion: download -> ingest to postgres)
 
 How often does it need to run?
+
+`Once`
 
 * Daily
 * Monthly
