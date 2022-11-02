@@ -131,3 +131,8 @@ How often does it need to run?
 * You can submit your homework multiple times. In this case, only the last submission will be used. 
 
 Deadline: February 7, 17:00 CET 
+
+
+
+### My questions
+- Why is there a DAG run from today if I set start and end date? I happened for both taxi and FHV DAGs
