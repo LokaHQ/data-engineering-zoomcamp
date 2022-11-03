@@ -9,12 +9,14 @@ from airflow.operators.python import PythonOperator
 
 from ingest_script import ingest_callable
 
+MONTH = "02"
+
 
 # https://d37ci6vzurychx.cloudfront.net/trip-data/fhv_tripdata_2019-01.parquet
 class Fhv:
-    url: str = "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/fhv/fhv_tripdata_2019-02.csv.gz"
-    csv: str = os.path.join(os.environ.get("AIRFLOW_HOME", "/opt/airflow/"), 'fhv_tripdata_2019-02.csv')
-    table: str = "fhv_tripdata"
+    url: str = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/fhv/fhv_tripdata_2019-{MONTH}.csv.gz"
+    csv: str = os.path.join(os.environ.get("AIRFLOW_HOME", "/opt/airflow/"), f"fhv_tripdata_2019-{MONTH}.csv")
+    table: str = f"fhv_tripdata_{MONTH}"
 
 
 fhv_workflow = DAG(
