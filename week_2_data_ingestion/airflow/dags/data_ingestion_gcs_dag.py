@@ -70,7 +70,8 @@ with DAG(
 
     download_dataset_task = BashOperator(
         task_id="download_dataset_task",
-        bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
+        # bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
+        bash_command=f"pip install gdown && gdown --fuzzy https://drive.google.com/file/d/1LhwkPJQesvTSAjZyx1i4JTvIA7XAEbcb/view\?usp\=sharing -O {path_to_local_home}/{dataset_file}"
     )
 
     format_to_parquet_task = PythonOperator(
