@@ -22,7 +22,7 @@ output = args.output
 
 
 spark = SparkSession.builder \
-    .appName('test') \
+    .appName('dags') \
     .getOrCreate()
 
 spark.conf.set('temporaryGcsBucket', 'dataproc-temp-europe-west6-828225226997-fckhkym8')

@@ -53,15 +53,15 @@ def main(args):
 
             t_end = time.time()
 
-            print('inserted data lump, took %.3f second' % (t_end - t_start))
+            print('inserted input_data lump, took %.3f second' % (t_end - t_start))
 
         except StopIteration:
-            print("Finished ingesting data into the postgres database")
+            print("Finished ingesting input_data into the postgres database")
             break
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Ingest CSV data to Postgres')
+    parser = argparse.ArgumentParser(description='Ingest CSV input_data to Postgres')
 
     parser.add_argument('--user', required=True, help='user name for postgres')
     parser.add_argument('--password', required=True, help='password for postgres')

@@ -15,7 +15,7 @@ profile: 'pg-dbt-workshop'
 model-paths: ["models"]
 analysis-paths: ["analysis"]
 test-paths: ["tests"]
-seed-paths: ["data"]
+seed-paths: ["input_data"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 

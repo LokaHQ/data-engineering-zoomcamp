@@ -5,7 +5,7 @@ services:
         env_file:
             - .env
         volumes:
-            - postgres-db-volume:/var/lib/postgresql/data
+            - postgres-db-volume:/var/lib/postgresql/input_data
         healthcheck:
             test: ["CMD", "pg_isready", "-U", "airflow"]
             interval: 5s

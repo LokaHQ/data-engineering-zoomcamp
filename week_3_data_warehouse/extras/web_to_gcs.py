@@ -15,7 +15,7 @@ Pre-reqs:
 # services = ['fhv','green','yellow']
 init_url = 'https://nyc-tlc.s3.amazonaws.com/trip+data/'
 # switch out the bucketname
-BUCKET = os.environ.get("GCP_GCS_BUCKET", "dtc-data-lake-bucketname")
+BUCKET = os.environ.get("GCP_GCS_BUCKET", "dtc-input_data-lake-bucketname")
 
 
 def upload_to_gcs(bucket, object_name, local_file):
