@@ -104,9 +104,6 @@ Create the final DAG - for Zones:
 
 How often does it need to run?
 
-* Daily
-* Monthly
-* Yearly
 * Once
 
 
