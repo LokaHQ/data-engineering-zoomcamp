@@ -17,6 +17,7 @@ BUCKET = os.environ.get("GCP_GCS_BUCKET")
 dataset_file = "yellow_tripdata_2021-01.csv"
 dataset_url = f"https://s3.amazonaws.com/nyc-tlc/trip+data/{dataset_file}"
 path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
+path_to_data = f"{path_to_local_home}/data"
 parquet_file = dataset_file.replace('.csv', '.parquet')
 BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'trips_data_all')
 
@@ -68,16 +69,11 @@ with DAG(
     tags=['dtc-de'],
 ) as dag:
 
-    download_dataset_task = BashOperator(
-        task_id="download_dataset_task",
-        bash_command=f"curl -sSL {dataset_url} > {path_to_local_home}/{dataset_file}"
-    )
-
     format_to_parquet_task = PythonOperator(
         task_id="format_to_parquet_task",
         python_callable=format_to_parquet,
         op_kwargs={
-            "src_file": f"{path_to_local_home}/{dataset_file}",
+            "src_file": f"{path_to_data}/{dataset_file}",
         },
     )
 
@@ -88,7 +84,7 @@ with DAG(
         op_kwargs={
             "bucket": BUCKET,
             "object_name": f"raw/{parquet_file}",
-            "local_file": f"{path_to_local_home}/{parquet_file}",
+            "local_file": f"{path_to_data}/{parquet_file}",
         },
     )
 
@@ -107,4 +103,4 @@ with DAG(
         },
     )
 
-    download_dataset_task >> format_to_parquet_task >> local_to_gcs_task >> bigquery_external_table_task
+format_to_parquet_task >> local_to_gcs_task >> bigquery_external_table_task

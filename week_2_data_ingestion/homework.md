@@ -37,7 +37,7 @@ What should be the start date for this dag?
 * 2021-01-01
 * days_ago(1)
 
-
+from the beginning of the data
 ## Question 2: Frequency for the Yellow taxi data (1 point)
 
 How often do we need to run this DAG?
@@ -47,7 +47,7 @@ How often do we need to run this DAG?
 * Yearly
 * Once
 
-
+Daily
 ## Re-running the DAGs for past dates
 
 To execute your DAG for past dates, try this:
