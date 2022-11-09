@@ -1,4 +1,4 @@
 apache-airflow-providers-google
 pyarrow
 gdown
-jinja
+jinja2
