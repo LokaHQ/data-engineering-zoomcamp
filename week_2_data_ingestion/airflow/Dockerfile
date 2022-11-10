@@ -33,6 +33,8 @@ RUN DOWNLOAD_URL="https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/goo
     && rm -rf "${TMP_DIR}" \
     && gcloud --version
 
+RUN pip install --no-cache-dir pandas sqlalchemy psycopg2-binary
+
 WORKDIR $AIRFLOW_HOME
 
 COPY scripts scripts

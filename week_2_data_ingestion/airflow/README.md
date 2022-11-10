@@ -106,6 +106,10 @@ This is a quick, simple & less memory-intensive setup of Airflow that works on a
     ```shell
     docker-compose down
     ```
+
+### Is you cannot log in
+
+`docker-compose run airflow-worker airflow users create --role Admin --username admin --email admin --firstname admin --lastname admin --password admin`
     
 ### Setup - Taken from DE Zoomcamp 2.3.4 - Optional: Lightweight Local Setup for Airflow
 

@@ -3,11 +3,12 @@ import os
 from time import time
 
 import pandas as pd
+import pyarrow.parquet as pq
 from sqlalchemy import create_engine
 
 
-def ingest_callable(user, password, host, port, db, table_name, csv_file, execution_date):
-    print(table_name, csv_file, execution_date)
+def ingest_callable(user, password, host, port, db, table_name, parquet_file, execution_date):
+    print(table_name, parquet_file, execution_date)
 
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
     engine.connect()
@@ -15,9 +16,9 @@ def ingest_callable(user, password, host, port, db, table_name, csv_file, execut
     print('connection established successfully, inserting data...')
 
     t_start = time()
-    df_iter = pd.read_csv(csv_file, iterator=True, chunksize=100000)
+    pq_iter = pq.ParquetFile(parquet_file).iter_batches(batch_size=100000)
 
-    df = next(df_iter)
+    df = next(pq_iter).to_pandas()
 
     df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
     df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
@@ -33,7 +34,8 @@ def ingest_callable(user, password, host, port, db, table_name, csv_file, execut
         t_start = time()
 
         try:
-            df = next(df_iter)
+            df = next(pq_iter)
+            df = df.to_pandas()
         except StopIteration:
             print("completed")
             break
