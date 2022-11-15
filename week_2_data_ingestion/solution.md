@@ -10,6 +10,8 @@ Run the following commands:
 
 Open [AirFlow WebServer](http://localhost:8080/)
 
+    admin:admin
+
 ### Useful Docker Commands
 
 Get Containers, Images & Volumes:
