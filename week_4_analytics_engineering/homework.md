@@ -23,6 +23,13 @@ only if you want to.
 You'll need to have completed the "Build the first dbt models" video and have been able to run the models via the CLI. 
 You should find the views and models for querying in your DWH.
 
+`62456332`
+
+```
+SELECT count(*)  FROM `leafy-garden-366619.dbt_ydelgado.fact_trips`
+WHERE  EXTRACT(YEAR from pickup_datetime) BETWEEN 2019 AND 2020;
+```
+
 ### Question 2: 
 **What is the distribution between service type filtering by years 2019 and 2020 data as done in the videos**
 
