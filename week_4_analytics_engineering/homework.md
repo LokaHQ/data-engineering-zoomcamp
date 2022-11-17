@@ -33,13 +33,24 @@ WHERE  EXTRACT(YEAR from pickup_datetime) BETWEEN 2019 AND 2020;
 ### Question 2: 
 **What is the distribution between service type filtering by years 2019 and 2020 data as done in the videos**
 
-You will need to complete "Visualising the data" videos, either using data studio or metabase. 
+You will need to complete "Visualising the data" videos, either using data studio or metabase.
+
+```
+Yellow: 89.2%
+Green: 10.8%
+``` 
 
 ### Question 3: 
 **What is the count of records in the model stg_fhv_tripdata after running all models with the test run variable disabled (:false)**  
 
 Create a staging model for the fhv data for 2019 and do not add a deduplication step. Run it via the CLI without limits (is_test_run: false).
 Filter records with pickup time in year 2019.
+
+`43261276`
+
+```
+SELECT count(*) FROM `leafy-garden-366619.dbt_ydelgado.stg_fhv_tripdata` where extract(year from pickup_datetime) = 2019
+```
 
 ### Question 4: 
 **What is the count of records in the model fact_fhv_trips after running all dependencies with the test run variable disabled (:false)**  
@@ -48,8 +59,13 @@ Create a core model for the stg_fhv_tripdata joining with dim_zones.
 Similar to what we've done in fact_trips, keep only records with known pickup and dropoff locations entries for pickup and dropoff locations. 
 Run it via the CLI without limits (is_test_run: false) and filter records with pickup time in year 2019.
 
+```
+I got a type error:
+00:00:21    Error while reading table: leafy-garden-366619.trips_data_all.fhv_tripdata, error message: Parquet column 'PUlocationID' has type INT64 which does not match the target cpp_type DOUBLE. File: gs://dtc_data_lake_leafy-garden-366619/fhv/fhv_tripdata_2019-06.parquet
+```
+
 ### Question 5: 
 **What is the month with the biggest amount of rides after building a tile for the fact_fhv_trips table**
 Create a dashboard with some tiles that you find interesting to explore the data. One tile should show the amount of trips per month, as done in the videos for fact_trips, based on the fact_fhv_trips table.
 
-
+`-`
