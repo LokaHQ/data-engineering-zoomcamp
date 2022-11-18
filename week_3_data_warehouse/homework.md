@@ -8,6 +8,34 @@ We will use all the knowledge learned in this week. Please answer your questions
 Can load the data for cloud storage and run a count(*)
 
 ```
+CREATE OR REPLACE EXTERNAL TABLE trips_data_all.external_table
+OPTIONS (
+  format = 'parquet',
+  uris = ['gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2019-03.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2019-04.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2019-07.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2019-08.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2019-09.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2019-10.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2019-11.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-01.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-02.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-03.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-04.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-05.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-06.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-08.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-09.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-10.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-11.parquet',
+  'gs://dezc_data_lake_dataengineeringzoomcamp-368119/raw/output_2020-12.parquet'
+  ]
+);
+CREATE OR REPLACE TABLE trips_data_all.fhv_data_non_partitioned AS
+SELECT * FROM trips_data_all.external_table;
+```
+
+```
 SELECT count(*) FROM `dataengineeringzoomcamp-368119.trips_data_all.external_table`;	
 ```
 
@@ -33,15 +61,15 @@ performance and reduce cost.
 
 ```
 -- Create a non partitioned internal table from external table (partitioning not possible for external data sources) 
-CREATE OR REPLACE TABLE trips_data_all.fhv_data_non_partitoned AS
-SELECT * FROM trips_data_all.external_table;
+    CREATE OR REPLACE TABLE trips_data_all.fhv_data_non_partitioned AS
+    SELECT * FROM trips_data_all.external_table;
 ```
 
 Is there an alternative for the concept predicate push down from Apache Spark??
 
 ```
 -- Now we can see the costs estimation because we have internal table
-SELECT count(DISTINCT(dispatching_base_num)) FROM trips_data_all.fhv_data_non_partitoned;
+SELECT count(DISTINCT(dispatching_base_num)) FROM trips_data_all.fhv_data_non_partitioned;
 ```
 
 ```
@@ -49,7 +77,7 @@ SELECT count(DISTINCT(dispatching_base_num)) FROM trips_data_all.fhv_data_non_pa
 CREATE OR REPLACE TABLE trips_data_all.fhv_data_partitioned_clustered
 PARTITION BY DATE(dropOff_datetime)
 CLUSTER BY dispatching_base_num AS
-SELECT * FROM trips_data_all.fhv_data_non_partitoned;
+SELECT * FROM trips_data_all.fhv_data_non_partitioned;
 ```
 
 
