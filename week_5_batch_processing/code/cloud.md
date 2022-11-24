@@ -55,7 +55,7 @@ python 06_spark_sql.py \
 Use `spark-submit` for running the script on the cluster
 
 ```bash
-URL="spark://de-zoomcamp.europe-west1-b.c.de-zoomcamp-nytaxi.internal:7077"
+URL="spark://de-zoomcamp.europe-west1-b.c.amazing-office-366810.internal:7077"
 
 spark-submit \
     --master="${URL}" \
@@ -87,11 +87,11 @@ Using Google Cloud SDK for submitting to dataproc
 gcloud dataproc jobs submit pyspark \
     --cluster=de-zoomcamp-cluster \
     --region=europe-west6 \
-    gs://dtc_data_lake_de-zoomcamp-nytaxi/code/06_spark_sql.py \
+    gs://dtc_data_lake_amazing-office-366810/code/06_spark_sql.py \
     -- \
-        --input_green=gs://dtc_data_lake_de-zoomcamp-nytaxi/pq/green/2020/*/ \
-        --input_yellow=gs://dtc_data_lake_de-zoomcamp-nytaxi/pq/yellow/2020/*/ \
-        --output=gs://dtc_data_lake_de-zoomcamp-nytaxi/report-2020
+        --input_green=gs://dtc_data_lake_amazing-office-366810/pq/green/2020/*/ \
+        --input_yellow=gs://dtc_data_lake_amazing-office-366810/pq/yellow/2020/*/ \
+        --output=gs://dtc_data_lake_amazing-office-366810/report-2020
 ```
 
 ### Big Query
