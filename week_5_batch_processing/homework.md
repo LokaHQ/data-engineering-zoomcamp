@@ -14,6 +14,7 @@ We'll use high volume for-hire vehicles (HVFHV) dataset for that.
 
 What's the output?
 
+`'3.0.3'`
 
 ## Question 2. HVFHW February 2021
 
@@ -32,6 +33,7 @@ parquet.
 
 What's the size of the folder with results (in MB)?
 
+`515MB`
 
 ## Question 3. Count records 
 
@@ -39,6 +41,12 @@ How many taxi trips were there on February 15?
 
 Consider only trips that started on February 15.
 
+```
++-------------------+----------+
+|    pickup_datetime|diff_dates|
++-------------------+----------+
+|2021-02-11 13:40:44|     75540|
+```
 
 ## Question 4. Longest trip for each day
 
@@ -46,6 +54,7 @@ Now calculate the duration for each trip.
 
 Trip starting on which day was the longest? 
 
+`2021-02-04 18:45:00`
 
 ## Question 5. Most frequent `dispatching_base_num`
 
@@ -58,6 +67,7 @@ How many stages this spark job has?
 > so there are multiple correct answers. 
 > Select the one you have.
 
+`2. They are "scan parquet" and "exchange"`
 
 ## Question 6. Most common locations pair
 
@@ -71,6 +81,7 @@ Enter two zone names separated by a slash
 
 If any of the zone names are unknown (missing), use "Unknown". For example, "Unknown / Clinton East". 
 
+`East New York <> East New York | 45041`
 
 ## Bonus question. Join type
 
@@ -80,8 +91,11 @@ For finding the answer to Q6, you'll need to perform a join.
 
 What type of join is it?
 
+`broadcast`
+
 And how many stages your spark job has?
 
+`1` or `2`?
 
 ## Submitting the solutions
 
