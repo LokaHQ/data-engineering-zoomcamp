@@ -1,8 +1,8 @@
-# Spark with Docker
+# Spark with Docker Compose
 [Check on Docker Hub](https://hub.docker.com/r/apache/spark-py)
 
-    docker build .
-    docker run -d -p 8000:8000 --name <name_container> <docker_id>
+    docker-compose build
+    docker-compose up
 
 # Spark Commands
     
@@ -13,4 +13,4 @@
     
     docker ps
     docker images
-    docker exec -it <container_id> bash
+    docker exec -it 5197b9989861 bash
