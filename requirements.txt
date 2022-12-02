@@ -4,3 +4,4 @@ sqlalchemy==1.4.42
 psycopg2-binary==2.9.1
 apache-airflow-providers-google
 pyarrow
+pyspark==3.3.1
