@@ -6,6 +6,7 @@
 **.terraform
 **.terraform.lock.*
 **google_credentials.json
+**kaggle.json
 **logs/
 **.env
 **__pycache__/
@@ -15,3 +16,6 @@ serving_dir
 *.csv
 .ipynb_checkpoints/
 !week_6_stream_processing/avro_example/data/rides.csv
+**/week_7_project/postgresdb/*
+**/week_7_project/sparkcontent/*
+**/week_7_project/data/*
