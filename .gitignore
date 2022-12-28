@@ -16,3 +16,8 @@ serving_dir
 .ipynb_checkpoints/
 !week_6_stream_processing/avro_example/data/rides.csv
 venv
+kaggle.json
+**gcs-connector-hadoop3-latest.jar
+**spark-3.1-bigquery-0.27.1-preview.jar
+week_7_project/postgresdb
+week_7_project/data
