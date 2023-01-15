@@ -64,6 +64,7 @@ x-airflow-common:
     GOOGLE_APPLICATION_CREDENTIALS: /.google/credentials/google_credentials.json
     AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: 'google-cloud-platform://?extra__google_cloud_platform__key_path=/.google/credentials/google_credentials.json'
     GCP_PROJECT_ID: ''
+    GOOGLE_CLOUD_PROJECT: ''
     GCP_GCS_BUCKET: ''
   volumes:
     - ./dags:/opt/airflow/dags
