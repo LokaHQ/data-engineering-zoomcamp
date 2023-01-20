@@ -13,6 +13,7 @@ METADATA_FILE_GCS_PATH = "metadata/source_files.csv"
 
 def list_files_to_ingest():
     import pandas as pd
+
     df_source_file = pd.read_csv(AIRFLOW_HOME + "/dags/source_files.csv")
     df_commit_log = pd.read_csv(AIRFLOW_HOME + "/dags/source_files_commit_log.csv")
     df_merge = df_source_file.merge(
@@ -25,7 +26,7 @@ def list_files_to_ingest():
     return [
         {
             "csv_file_download_url": item["download_link"],
-            "output_file": f"airlines_{item['year']}.csv",
+            "year": f"{item['year']}",
         }
         for index, item in df_not_ingested.iterrows()
     ]

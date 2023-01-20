@@ -4,6 +4,7 @@ ENV AIRFLOW_HOME=/opt/airflow
 
 USER root
 RUN apt-get update -qq && apt-get install vim -qqq
+RUN apt-get install bzip2
 # git gcc g++ -qqq
 
 COPY requirements.txt .
