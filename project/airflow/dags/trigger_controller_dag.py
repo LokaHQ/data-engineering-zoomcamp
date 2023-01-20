@@ -1,30 +1,37 @@
 import os
 from datetime import datetime
 from airflow import DAG
+from airflow.operators.python import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from airflow.decorators import task
 from airflow.providers.google.cloud.sensors.gcs import GCSObjectUpdateSensor
 
 
-AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
+AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
-METADATA_FILE = "metadata/source_files.csv"
+METADATA_FILE_GCS_PATH = "metadata/source_files.csv"
 
 
-@task
-def get_files_to_download():
+def list_files_to_ingest():
+    import pandas as pd
+    df_source_file = pd.read_csv(AIRFLOW_HOME + "/dags/source_files.csv")
+    df_commit_log = pd.read_csv(AIRFLOW_HOME + "/dags/source_files_commit_log.csv")
+    df_merge = df_source_file.merge(
+        df_commit_log.drop_duplicates(),
+        on=["year", "download_link"],
+        how="left",
+        indicator=True,
+    )
+    df_not_ingested = df_merge[df_merge["_merge"] == "left_only"]
     return [
         {
-            "csv_file_download_url": "https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/HG7NV7/IXITH2",
-            "output_file": "airlines_1987.csv",
-        },
-        {
-            "csv_file_download_url": "https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/HG7NV7/TUYWU3",
-            "output_file": "airlines_1988.csv",
+            "csv_file_download_url": item["download_link"],
+            "output_file": f"airlines_{item['year']}.csv",
         }
+        for index, item in df_not_ingested.iterrows()
     ]
 
 
+# copied from sensor source code
 def ts_function_overwrite(context):
     """
     Default callback for the GoogleCloudStorageObjectUpdatedSensor. The default
@@ -51,14 +58,19 @@ with DAG(
     gcs_sensor = GCSObjectUpdateSensor(
         task_id="gcs_metadata_sensor",
         bucket=BUCKET,
-        object=METADATA_FILE,
+        object=METADATA_FILE_GCS_PATH,
         ts_func=ts_function_overwrite,
+    )
+
+    get_files_to_ingest = PythonOperator(
+        task_id="get_files_to_ingest_step",
+        python_callable=list_files_to_ingest,
     )
 
     ingestion_trigger = TriggerDagRunOperator.partial(
         task_id="ingestion_dag",
         trigger_dag_id="IngestionDAG",
         wait_for_completion=True,
-    ).expand(conf=get_files_to_download())
+    ).expand(conf=get_files_to_ingest.output)
 
-    gcs_sensor >> ingestion_trigger
+    gcs_sensor >> get_files_to_ingest >> ingestion_trigger

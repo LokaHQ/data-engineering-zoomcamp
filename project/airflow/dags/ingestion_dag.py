@@ -6,7 +6,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.models.param import Param
 
-from ingest_script_gcs import ingest_gcs_callable
+from ingestion_dag_functions import ingest_gcs_callable, commit_file
 
 
 AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
@@ -49,8 +49,17 @@ with DAG(
 
     cleanup_task = BashOperator(
         task_id="cleanup",
-        bash_command="rm $airflow_home/{{params.output_file}}",
+        bash_command="rm -f $airflow_home/{{params.output_file}}",
         env={"airflow_home": AIRFLOW_HOME},
     )
 
-    wget_task >> ingest_task >> cleanup_task
+    commit_file_task = PythonOperator(
+        task_id="commit_file",
+        python_callable=commit_file,
+        op_kwargs={
+            "output_file": "{{ params.output_file }}",
+            "download_link": "{{ params.csv_file_download_url }}",
+        },
+    )
+
+    wget_task >> ingest_task >> cleanup_task >> commit_file_task
