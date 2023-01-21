@@ -1,0 +1,86 @@
+version: 2
+
+sources:
+  - name: staging
+    database: dataengineeringzoomcamp-368119
+    schema: airlines_data_all
+    tables:
+      - name: airlines_data
+
+models:
+    - name: stg_flights_data
+      description: >
+        Airline on-time performance: Have you ever been stuck in an airport because your flight was
+        delayed or cancelled and wondered if you could have predicted it if you'd had more data? This
+        is your chance to find out. The data: The data consists of flight arrival and departure details
+        for all commercial flights within the USA, from October 1987 to April 2008. This is a large
+        dataset: there are nearly 120 million records in total, and takes up 1.6 gigabytes of space
+        compressed and 12 gigabytes when uncompressed. The data comes originally from RITA where it is
+        described in detail.
+        Source: https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/HG7NV7
+      columns:
+          - name: Year
+            description: 1987-2008
+          - name: Month
+            description: 1-12
+          - name: DayofMonth
+            description: 1-31
+          - name: DayOfWeek
+            description: 1 (Monday) - 7 (Sunday)
+          - name: DepTime
+            description: Actual departure time (local, hhm m)
+          - name: CRSDepTime
+            description: Scheduled departure time (local, hhmm)
+          - name: ArrTime
+            description: Actual arrival time (local, hhmm)
+          - name: CRSArrTime
+            description: Scheduled arrival time (local, hhmm)
+          - name: UniqueCarrier
+            description: Unique carrier code
+          - name: FlightNum
+            description: Flight number
+          - name: TailNum
+            description: Plane tail number
+          - name: ActualElapsedTime
+            description: in minutes
+          - name: CRSElapsedTime
+            description: in minutes
+          - name: AirTime
+            description: in minutes
+          - name: ArrDelay
+            description: Arrival delay, in minutes
+          - name: DepDelay
+            description: Departure delay, in minutes
+          - name: Origin
+            description: Origin IATA airport code
+          - name: Dest
+            description: Destination IATA airport code
+          - name: Distance
+            description: in miles
+          - name: TaxiIn
+            description: Taxi in time, in minutes
+          - name: TaxiOut
+            description: Taxi out time in minutes
+          - name: Cancelled
+            description: was the flight cancelled?
+          - name: CancellationCode
+            description: >
+              Reason for cancellation:
+              A = carrier
+              B = weather
+              C = NAS
+              D = security
+          - name: Diverted
+            description: >
+              1 = yes
+              0 = no
+          - name: CarrierDelay
+            description: in minutes
+          - name: WeatherDelay
+            description: in minutes
+          - name: NASDelay
+            description: in minutes
+          - name: SecurityDelay
+            description: in minutes
+          - name: LateAircraftDelay
+            description: in minutes

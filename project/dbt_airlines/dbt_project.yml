@@ -9,6 +9,21 @@ config-version: 2
 # This setting configures which "profile" dbt uses for this project.
 profile: 'dbt_airlines'
 
+#cat ~/.dbt/profiles.yml
+#dbt_airlines:
+#  outputs:
+#    dev:
+#      dataset: airlines_data_all
+#      job_execution_timeout_seconds: 300
+#      job_retries: 1
+#      keyfile: /Users/stefankocev/.config/gcloud/google_credentials.json
+#      method: service-account
+#      priority: interactive
+#      project: dataengineeringzoomcamp-368119
+#      threads: 4
+#      type: bigquery
+#  target: dev
+
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
@@ -28,11 +43,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
-# In this example config, we tell dbt to build all models in the example/ directory
+# In this example config, we tell dbt to build all models in the core/ directory
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
   dbt_airlines:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    staging:
       +materialized: view
+    core:
+      +materialized: table

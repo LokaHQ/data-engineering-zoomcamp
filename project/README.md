@@ -1,4 +1,5 @@
 https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/HG7NV7
+https://github.com/datasets/airport-codes/blob/master/data/airport-codes.csv
 
 1. Airflow listener for a meta file, once a file update is detected, 
    checks for un-ingested files and ingests them, 

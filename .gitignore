@@ -18,3 +18,4 @@ serving_dir
 venv
 !project/airflow/dags/source_files.csv
 !project/airflow/dags/source_files_commit_log.csv
+!project/dbt_airlines/seeds/airports.csv
