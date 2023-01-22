@@ -43,12 +43,16 @@ resource "google_storage_bucket_object" "source_file" {
   name   = "metadata/source_files.csv"
   source = "datalake_metadata/source_files_sample.csv"
   bucket = "${local.data_lake_bucket}_${var.project}"
+
+  depends_on = [google_storage_bucket.data-lake-bucket]
 }
 
 resource "google_storage_bucket_object" "source_file_commit_log" {
   name   = "metadata/source_files_commit_log.csv"
   source = "datalake_metadata/source_files_commit_log_sample.csv"
   bucket = "${local.data_lake_bucket}_${var.project}"
+
+  depends_on = [google_storage_bucket.data-lake-bucket]
 }
 
 # Data Warehouse (BigQuery Dataset)
