@@ -1,4 +1,10 @@
-{{ config(materialized='table') }}
+{{ config(
+	materialized='table',
+	partition_by={
+      "field": "flight_date",
+      "granularity": "month",
+    }
+)}}
 
 with flights_data as (
     select *
@@ -14,6 +20,7 @@ select
 	flights_data.Year as year,
 	flights_data.Month as month,
 	flights_data.DayofMonth as day,
+	DATE(flights_data.Year, flights_data.Month, flights_data.DayofMonth) as flight_date,
 	flights_data.DayOfWeek as week_day,
 	flights_data.Origin as origin_airport_code,
 	flights_data.Dest as dest_airport_code,
