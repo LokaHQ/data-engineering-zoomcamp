@@ -1,6 +1,7 @@
 import os
 
-AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow")
+BUCKET = os.environ.get("GCP_GCS_BUCKET")
+METADATA_COMMIT_LOG_FILE_GCS_PATH = "metadata/source_files_commit_log.csv"
 
 
 def ingest_gcs_callable(bucket: str, object_name: str, file_to_upload: str):
@@ -31,13 +32,13 @@ def commit_file(year: str, download_link: str):
     import pandas as pd
 
     df_commit_log = pd.read_csv(
-        AIRFLOW_HOME + "/dags/source_files_commit_log.csv", index_col=None
+        f"gs://{BUCKET}/{METADATA_COMMIT_LOG_FILE_GCS_PATH}", index_col=None
     )
     new_entry = pd.DataFrame([[year, download_link]], columns=["year", "download_link"])
 
     df_commit_log = pd.concat([df_commit_log, new_entry])
     df_commit_log.to_csv(
-        AIRFLOW_HOME + "/dags/source_files_commit_log.csv", index=False
+        f"gs://{BUCKET}/{METADATA_COMMIT_LOG_FILE_GCS_PATH}", index=False
     )
 
 

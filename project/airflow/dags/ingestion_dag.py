@@ -26,7 +26,7 @@ with DAG(
     "IngestionDAG",
     schedule=None,
     start_date=datetime(2023, 1, 1),
-    max_active_runs=2,
+    max_active_runs=1,
     tags=["zoom-camp"],
     params={
         "csv_file_download_url": Param(default="", type="string"),
@@ -46,12 +46,13 @@ with DAG(
 
     bzip_task = BashOperator(
         task_id="unzip-file",
-        bash_command="bzip2 -d $airflow_home/airlines_{{params.year}}.csv.bz2",
+        # -f --force - overwrite existing output files
+        bash_command="bzip2 -d -f $airflow_home/airlines_{{params.year}}.csv.bz2",
         env={"airflow_home": AIRFLOW_HOME},
     )
 
     format_to_parquet_task = PythonOperator(
-        task_id="format_to_parquet_task",
+        task_id="format-to-parquet-task",
         python_callable=format_to_parquet,
         op_kwargs={
             "csv_file": "airlines_{{ params.year }}.csv",
@@ -79,7 +80,7 @@ with DAG(
     )
 
     big_query_external_table_task = BigQueryCreateExternalTableOperator(
-        task_id="bq-create-external-table",
+        task_id="biq-query-create-external-table",
         table_resource={
             "tableReference": {
                 "projectId": PROJECT_ID,
@@ -102,7 +103,7 @@ with DAG(
 
     # Create/Refresh a partitioned table from external table
     big_query_create_table_task = BigQueryInsertJobOperator(
-        task_id=f"bq-create-table",
+        task_id=f"biq-query-create-table",
         configuration={
             "query": {
                 "query": BQ_CREATE_TABLE_QUERY,
@@ -126,13 +127,14 @@ with DAG(
         },
     )
 
+    wget_task >> bzip_task >> upload_task_csv
+
     (
-        wget_task
-        >> bzip_task
+        bzip_task
         >> format_to_parquet_task
-        >> [upload_task_csv, upload_task_parquet]
+        >> upload_task_parquet
         >> big_query_external_table_task
         >> big_query_create_table_task
-        >> cleanup_task
-        >> commit_file_task
     )
+
+    [upload_task_csv, big_query_create_table_task] >> cleanup_task >> commit_file_task
