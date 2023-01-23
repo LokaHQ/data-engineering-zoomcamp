@@ -24,12 +24,13 @@ described in detail."
 Source:
 
 https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/HG7NV7
+
 https://community.amstat.org/jointscsg-section/dataexpo/dataexpo2009
 
 Airports data - the flight entries in the dataset contain airport codes only, without any airport info.
 To provide more details to analysts, we will extend each flight record with airport details from 
-https://github.com/datasets/airport-codes (the csv 
-https://github.com/datasets/airport-codes/blob/master/data/airport-codes.csv)
+https://github.com/datasets/airport-codes 
+(the csv https://github.com/datasets/airport-codes/blob/master/data/airport-codes.csv)
 
 
 ### Cloud Resources
@@ -73,10 +74,9 @@ On the right side, under `Mapped Instances`, we can see the triggered Ingestion 
 
 The first step of the DAG reads the file from the `GCS_BUCKET/metadata/source_files.csv` and compares the entries
 with the commit log file `GCS_BUCKET/metadata/source_files_commit_log.csv`. If there were new entries detected in the
-`GCS_BUCKET/metadata/source_files.csv` file, then for each new entry a IngestionDAG run is triggered.
+`GCS_BUCKET/metadata/source_files.csv` file, then for each new entry an IngestionDAG run is triggered.
 
-The IngestionTriggerDAG is scheduled for daily runs. Once a day it starts, checks for new file entries, and if new
-file entries are detected, it starts a IngestionDAG run per file.
+The IngestionTriggerDAG is scheduled to run once every day.
 
 #### Ingestion DAG
 
@@ -99,18 +99,18 @@ follow the instructions in the [dbt_airlines](./dbt_airlines) directory README.
 ### Dashboards
 Looker Studio is used to create the dashboards. Below we have some screenshots from the Looker Studio report.
 
-Overview
+#### Overview
 
 ![diagram](img/overview.png)
 
-Traffic Intensity vs Delays
+#### Traffic Intensity vs Delays
 
 ![diagram](img/delays-months.png)
 
-Cancelled and Diverted Flights over years
+#### Cancelled and Diverted Flights over years
 
 ![diagram](img/cancelled-diverted.png)
 
-Diverted flights patterns
+#### Diverted flights patterns
 
 ![diagram](img/diverted-flights-pattern.png)
