@@ -1,153 +1,199 @@
-## Course Project
+# Course Project
 
-The goal of this project is to apply everything we learned
-in this course and build an end-to-end data pipeline.
+![Screenshot 2023-01-13 at 2 02 53 PM](https://user-images.githubusercontent.com/59669948/212337940-b7567144-ff0a-4943-a94f-70e4fda86c37.png)
 
-Remember that to pass the project, you must evaluate 3 peers. If you don't do that, your project can't be considered compelete.  
+## Data ingestion
 
+![Screenshot 2023-01-05 at 1 00 32 PM](https://user-images.githubusercontent.com/59669948/212338202-e29e705d-57cd-43c6-a7be-c7a9399378f7.png)
 
-### Submitting 
+![Screenshot 2023-01-12 at 8 07 40 PM](https://user-images.githubusercontent.com/59669948/212338335-9bbcfcf7-59cb-4283-91cb-8dfc69c2a909.png)
 
-#### Project Cohort #2
+### Create Partitioned tables
 
-Project:
+```
+def execute_data_dag(
+    dag,
+    data_nature,
+    path
+):
+    with dag:
+        bigquery_external_table_task = BigQueryCreateExternalTableOperator(
+            task_id=f"bq_external_table_task",
+            table_resource={
+                "tableReference": {
+                    "projectId": PROJECT_ID,
+                    "datasetId": BIGQUERY_DATASET,
+                    "tableId": f"{path}_{data_nature}_external_table",
+                },
+                "externalDataConfiguration": {
+                    "autodetect": True,
+                    "sourceFormat": f"CSV",
+                    "sourceUris": [f"gs://{BUCKET}/{data_nature}/{path}/*"],
+                },
+            },
+        )
 
-* Form: https://forms.gle/JECXB9jYQ1vBXbsw6
-* Deadline: 2 May, 22:00 CET
+        bq_create_partitioned_table_job = BigQueryInsertJobOperator(
+            task_id=f"bq_create_partitioned_table_task",
+            configuration={
+                "query": {
+                    "query": f"CREATE OR REPLACE TABLE {BIGQUERY_DATASET}.{path}_{data_nature}_partition_date \
+                                PARTITION BY DATE_TRUNC(date, YEAR) \
+                                AS \
+                                SELECT * FROM {BIGQUERY_DATASET}.{path}_{data_nature}_external_table;",
+                    "useLegacySql": False,
+                }
+            }
+        )
 
-Peer reviewing:
+        bigquery_external_table_task >> bq_create_partitioned_table_job
+```
 
-* Peer review assignments: [link](https://docs.google.com/spreadsheets/d/e/2PACX-1vShnv8T4iY_5NA8h0nySIS8Wzr-DZGGigEikIW4ZMSi9HlvhaEB4RhwmepVIuIUGaQHS90r5iHR2YXV/pubhtml?gid=964123374&single=true)
-* Form: https://forms.gle/Pb2fBwYLQ3GGFsaK6
-* Deadline: 9 May, 22:00 CET
+### Create all data table
 
+```
+def execute_analysis_dag(dag):
+    with dag:
+        bq_create_analysis_table_task = BigQueryInsertJobOperator(
+            task_id=f"bq_create_analysis_table_task",
+            configuration={
+                "query": {
+                    "query": f"CREATE OR REPLACE TABLE {BIGQUERY_DATASET}.analysis_twitter_stocks \
+                                PARTITION BY DATE_TRUNC(date, YEAR) \
+                                AS \
+                                SELECT \
+                                    twitter.date, \
+                                    replies_count, \
+                                    retweets_count, \
+                                    likes_count, \
+                                    AAPL, \
+                                    AMZN, \
+                                    GOOG, \
+                                    INTC, \
+                                    JPM, \
+                                    NFLX, \
+                                    PFE, \
+                                    TWTR, \
+                                    V, \
+                                    XOM \
+                                FROM {BIGQUERY_DATASET}.stocks_warehouse_all as stocks \
+                                INNER JOIN {BIGQUERY_DATASET}.twitter_warehouse_external_table_by_date as twitter \
+                                ON twitter.date = stocks.date;",
+                    "useLegacySql": False,
+                }
+            }
+        )
 
-#### Project Cohort #1
+        bq_create_analysis_table_task
+```
 
-Project:
+## Analysis
 
-* Form: https://forms.gle/6aeVcEVJipqR2BqC8
-* Deadline: 4 April, 22:00 CET
+### Big Query
 
-Peer reviewing:
+![Screenshot 2023-01-05 at 12 56 17 PM](https://user-images.githubusercontent.com/59669948/212338442-69346694-4e3f-41c6-9e65-4d932e2ce111.png)
 
-* Peer review assignments: [link](https://docs.google.com/spreadsheets/d/e/2PACX-1vShnv8T4iY_5NA8h0nySIS8Wzr-DZGGigEikIW4ZMSi9HlvhaEB4RhwmepVIuIUGaQHS90r5iHR2YXV/pubhtml)
-* Form: https://forms.gle/AZ62bXMp4SGcVUmK7
-* Deadline: 11 April, 22:00 CET
+```
+#
+# Twitter analysis
+#
 
-Project feedback: [link](https://docs.google.com/spreadsheets/d/e/2PACX-1vRcVCkO-jes5mbPAcikn9X_s2laJ1KhsO8aibHYQxxKqdCUYMVTEJLJQdM8C5aAUWKFl_0SJW4rme7H/pubhtml)
+#
+# Lake
 
+# Twitter all
 
-### Problem statement
+SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.twitter_lake_all` LIMIT 1000;
 
-For the project, we will ask you to build a dashboard with two tiles. 
+#
+# Warehouse
 
-For that, you will need:
+SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.twitter_warehouse_external_table` LIMIT 1000;
 
-* Select a dataset that you're interested in (see [datasets.md](datasets.md))
-* Create a pipeline for processing this dataset and putting it to a datalake
-* Create a pipeline for moving the data from the lake to a data warehouse
-* Transform the data in the data warehouse: prepare it for the dashboard
-* Create a dashboard
+SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.twitter_warehouse_external_table_by_date` WHERE date = "2023-01-03" LIMIT 1000;
 
+# Create table partitioned by date
+CREATE OR REPLACE TABLE `dtc-de-course-366709.twitter_stocks_all.twitter_warehouse_external_table_by_date`
+  PARTITION BY DATE_TRUNC(date, YEAR)
+  AS
+  SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.twitter_warehouse_external_table`;
+```
 
+```
+#
+# Stocks analysis
+#
 
-## Data Pipeline 
+#
+# Lake
 
-The pipeline could be stream or batch: this is the first thing you'll need to decide 
+# Stocks all
+SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.stocks_lake_all` LIMIT 1000;
 
-* If you want to consume data in real-time and put them to data lake - go with stream.
-* If you want to run things periodically (e.g. hourly/daily), go with batch
+SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_AAPL` LIMIT 1000;
 
+CREATE OR REPLACE TABLE `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_all`
+PARTITION BY DATE_TRUNC(date, YEAR)
+AS
+SELECT
+  AAPL.date,
+  AAPL.Adjusted_Close as AAPL,
+  AMZN.Adjusted_Close as AMZN,
+  GOOG.Adjusted_Close as GOOG,
+  INTC.Adjusted_Close as INTC,
+  JPM.Adjusted_Close as JPM,
+  NFLX.Adjusted_Close as NFLX,
+  PFE.Adjusted_Close as PFE,
+  TWTR.Adjusted_Close as TWTR,
+  V.Adjusted_Close as V,
+  XOM.Adjusted_Close as XOM
+FROM `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_AAPL` as AAPL
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_AMZN` as AMZN ON AAPL.date = AMZN.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_GOOG` as GOOG ON AAPL.date = GOOG.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_INTC` as INTC ON AAPL.date = INTC.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_JPM` as JPM ON AAPL.date = JPM.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_NFLX` as NFLX ON AAPL.date = NFLX.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_PFE` as PFE ON AAPL.date = PFE.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_TWTR` as TWTR ON AAPL.date = TWTR.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_V` as V ON AAPL.date = V.date
+INNER JOIN `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_XOM` as XOM ON AAPL.date = XOM.date;
 
-## Technologies 
+SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.analysis_twitter_stocks` LIMIT 1000;
+```
 
-You don't have to limit yourself to technologies covered in the course. You can use alternatives as well:
+```
+#
+# Analysis
+#
 
-* Cloud: AWS, GCP, Azure or others
-* Infrastructure as code (IaC): Terraform, Pulumi, Cloud Formation, ...
-* Workflow orchestration: Airflow, Prefect, Luigi, ...
-* Data Wareshouse: BigQuery, Snowflake, Redshift, ...
-* Batch processing: Spark, Flink, AWS Batch, ...
-* Stream processing: Kafka, Pulsar, Kinesis, ...
+# Create table partitioned by date
+CREATE OR REPLACE TABLE `dtc-de-course-366709.twitter_stocks_all.analysis_twitter_stocks`
+  PARTITION BY DATE_TRUNC(date, YEAR)
+  AS
+  SELECT
+    twitter.date,
+    replies_count,
+    retweets_count,
+    likes_count,
+    AAPL,
+    AMZN,
+    GOOG,
+    INTC,
+    JPM,
+    NFLX,
+    PFE,
+    TWTR,
+    V,
+    XOM
+  FROM `dtc-de-course-366709.twitter_stocks_all.stocks_warehouse_all` as stocks
+  INNER JOIN `dtc-de-course-366709.twitter_stocks_all.twitter_warehouse_external_table_by_date` as twitter
+  ON twitter.date = stocks.date;
 
-If you use something that wasn't covered in the course, 
-be sure to explain what the tool does.
+SELECT * FROM `dtc-de-course-366709.twitter_stocks_all.analysis_twitter_stocks` WHERE date BETWEEN '2022-01-01' and '2022-01-28'
+```
 
-If you're not certain about some tools, ask in Slack.
+### Google Data Studio
 
+![Screenshot 2023-01-13 at 2 06 56 PM](https://user-images.githubusercontent.com/59669948/212338743-1529d0f1-c049-4fe1-b2b8-b1b3c355ea14.png)
 
-## Dashboard
-
-You can build a dashboard with any of the tools shown in the course (Data Studio or Metabase) or any other BI tool of your choice. If you do use another tool, please specify and make sure that the dashboard is somehow accessible to your peers. 
-
-Your dashboard should contain at least two tiles, we suggest you include:
-
-- 1 graph that shows the distribution of some categorical data 
-- 1 graph that shows the distribution of the data across a temporal line
-
-Make sure that your graph is clear to understand by adding references and titles. 
-
-Example of a dashboard: ![image](https://user-images.githubusercontent.com/4315804/159771458-b924d0c1-91d5-4a8a-8c34-f36c25c31a3c.png)
-
-
-## Peer review criteria
-
-* Problem description
-    * 0 points: Problem is not described
-    * 1 point: Problem is described but shortly or not clearly 
-    * 2 points: Problem is well described and it's clear what the problem the project solves
-* Cloud
-    * 0 points: Cloud is not used, things run only locally
-    * 2 points: The project is developed on the cloud
-    * 4 points: The project is developed on the clound and IaC tools are used
-* Data ingestion (choose either batch or stream)
-    * Batch / Workflow orchestration
-        * 0 points: No workflow orchestration
-        * 2 points: Partial workflow orchestration: some steps are orchestrated, some run manually
-        * 4 points: End-to-end pipeline: multiple steps in the DAG, uploading data to data lake
-    * Stream
-        * 0 points: No streaming system (like Kafka, Pulsar, etc)
-        * 2 points: A simple pipeline with one consumer and one producer
-        * 4 points: Using consumer/producers and streaming technologies (like Kafka streaming, Spark streaming, Flink, etc)
-* Data warehouse
-    * 0 points: No DWH is used
-    * 2 points: Tables are created in DWH, but not optimized
-    * 4 points: Tables are partitioned and clustered in a way that makes sense for the upstream queries (with explanation)
-* Transformations (dbt, spark, etc)
-    * 0 points: No tranformations
-    * 2 points: Simple SQL transformation (no dbt or similar tools)
-    * 4 points: Tranformations are defined with dbt, Spark or similar technologies
-* Dashboard
-    * 0 points: No dashboard
-    * 2 points: A dashboard with 1 tile
-    * 4 points: A dashboard with 2 tiles
-* Reproducibility
-    * 0 points: No instructions how to run code at all
-    * 2 points: Some instructions are there, but they are not complete
-    * 4 points: Instructions are clear, it's easy to run the code, and the code works
-
-
-## Going the extra mile 
-
-If you finish the project and you want to improve it, here are a few things you can do:
-
-* Add tests
-* Use make
-* Add CI/CD pipeline 
-
-This is not covered in the course and this is entirely optional.
-
-If you plan to use this project as your portfolio project, it'll 
-definitely help you to stand out from others.
-
-> **Note**: this part will not be graded. 
-
-
-Some links to refer to:
-
-* [Unit Tests + CI for Airflow](https://www.astronomer.io/events/recaps/testing-airflow-to-bulletproof-your-code/)
-* [CI/CD for Airflow (with Gitlab & GCP state file)](https://engineering.ripple.com/building-ci-cd-with-airflow-gitlab-and-terraform-in-gcp)
-* [CI/CD for Airflow (with GitHub and S3 state file)](https://programmaticponderings.com/2021/12/14/devops-for-dataops-building-a-ci-cd-pipeline-for-apache-airflow-dags/)
-* [CD for Terraform](https://towardsdatascience.com/git-actions-terraform-for-data-engineers-scientists-gcp-aws-azure-448dc7c60fcc)
-* [Spark + Airflow](https://medium.com/doubtnut/github-actions-airflow-for-automating-your-spark-pipeline-c9dff32686b)
+![Screenshot 2023-01-13 at 2 08 54 PM](https://user-images.githubusercontent.com/59669948/212339154-51e2bd91-457d-42e0-8855-9d5e6d222cc4.png)
